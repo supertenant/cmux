@@ -270,6 +270,16 @@ func (l muxListener) Accept() (net.Conn, error) {
 	}
 }
 
+func (l muxListener) Close() error {
+	select {
+	case <-l.donec:
+		return net.ErrClosed
+	default:
+		close(l.donec)
+	}
+	return nil
+}
+
 // MuxConn wraps a net.Conn and provides transparent sniffing of connection data.
 type MuxConn struct {
 	net.Conn
